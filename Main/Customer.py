@@ -34,34 +34,28 @@ class Customer:
 
         return _result
 
+    def statement_header(self):
+        return f"Rental Record for {self.getName()}" + "\n"
+
+    def statement_body(self, _frequentRenterPoints, _result, _totalAmount):
+        for rental in self.rentals:
+            _thisAmount = 0
+            _thisAmount = rental.determine_amount()
+
+            _frequentRenterPoints += rental.frequent_rental_point()
+            _totalAmount += _thisAmount
+            _result = self.format_footer(_result, _thisAmount, rental)
+        return _frequentRenterPoints, _result, _totalAmount
+
+
+
     def statement_footer(self, _frequentRenterPoints, _result, _totalAmount):
         _result += "You owed " + "{:.1f}".format(_totalAmount) + "\n"
         _result += f"You earned {str(_frequentRenterPoints)}" + " frequent renter points\n"
 
         return _result
 
-    def statement_body(self, _frequentRenterPoints, _result, _totalAmount):
-        for rental in self.rentals:
-            _thisAmount = 0
-            # determines the amount for each line
-            if rental.getMovie().getPriceCode() == Movie.REGULAR:
-                _thisAmount += 2
-                if rental.getDaysRented() > 2:
-                    _thisAmount += (rental.getDaysRented() - 2) * 1.5
-            elif rental.getMovie().getPriceCode() == Movie.NEW_RELEASE:
-                _thisAmount += rental.getDaysRented() * 3
-            elif rental.getMovie().getPriceCode() == Movie.CHILDRENS:
-                _thisAmount += 1.5
-                if rental.getDaysRented() > 3:
-                    _thisAmount += (rental.getDaysRented() - 3) * 1.5
-
-            _frequentRenterPoints += 1
-            if rental.getMovie().getPriceCode() == Movie.NEW_RELEASE and rental.getDaysRented() > 1:
-                _frequentRenterPoints += 1
-            _result += "\t" + rental.getMovie().getTitle() + "\t" + "{:.1f}".format(_thisAmount) + "\n"
-            _totalAmount += _thisAmount
-        return _frequentRenterPoints, _result, _totalAmount
-
-    def statement_header(self):
-        return f"Rental Record for {self.getName()}" + "\n"
+    def format_footer(self, _result, _thisAmount, rental):
+        _result += "\t" + rental.getMovie().getTitle() + "\t" + "{:.1f}".format(_thisAmount) + "\n"
+        return _result
     # ----------------------------------------------------------------------------------------------------------
